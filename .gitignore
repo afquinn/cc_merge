@@ -34,6 +34,7 @@ logs/
 *.png
 *.svg
 *.jpg
+lib/python3.13/
 
 # Your merged or generated files
 final_output/
