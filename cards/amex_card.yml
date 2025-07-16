@@ -1,0 +1,12 @@
+card:
+  name: "Amex Cash Preferred"
+  last-4: "1000"
+  owner: "Adam"
+  folder_path: "./data/amex_blue"
+  column_map:
+    Date: "Date"
+    Amount: "Amount"
+    Category: "Category"
+    Description: "Description"
+  clean_description_using_city_state: true
+  reverse_sign: true

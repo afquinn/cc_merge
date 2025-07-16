@@ -1,0 +1,12 @@
+card:
+  name: "US Bank Platinum"
+  last-4: "6702"
+  owner: "Adam"
+  folder_path: "./data/us_bank"
+  column_map:
+    Date: "Date"
+    Amount: "Amount"
+    Name: "Description"
+    Category: "Category"
+  us_bank_real_estate: true
+  reverse_sign: false

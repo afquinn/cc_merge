@@ -1,0 +1,52 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.env/
+.venv/
+env/
+venv/
+cc_merge/
+
+# VS Code and PyCharm files
+.vscode/
+.idea/
+
+# Mac system files
+.DS_Store
+
+# Local logs and debug
+*.log
+logs/
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Output data and reports
+*.csv
+*.xlsx
+*.tsv
+*.pdf
+*.png
+*.svg
+*.jpg
+
+# Your merged or generated files
+final_output/
+merged_output/
+secrets/
+all_cards.csv
+
+# Configs and credentials
+config.yml
+category_map.yml
+credentials.yml
+token.json
+client_secret.json
+
+# gspread auth tokens
+.gspread_token.json

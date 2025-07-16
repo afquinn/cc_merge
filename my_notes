@@ -1,0 +1,73 @@
+README
+
+This is set up in a Venv. Toactivate the Venv use:
+
+source /Users/test/Documents/cc_merge/bin/activate
+
+python3 merge_cards.py
+
+
+TO DO
+--Style Cleanup
+Merge Catagories
+
+
+yml for All Cards
+
+Profile for merges
+IE 
+	--Just my spending
+	--RE Cards
+	--Family Card
+
+Upload to Google Docs
+	--get Fancy With Formatting	
+
+
+I want a catagory for
+MOBILE PAYMENT - THANK YOU
+
+
+7/11 progress notes
+
+If you want to take it further:
+
+📆 Auto-schedule it via cron (Mac/Linux) or launchd
+
+🔒 Add GitHub and .env to secure + track changes
+
+🧮 Add monthly/weekly summaries (e.g. per card, per category)
+
+🔁 Track new rows only, rather than re-upload all
+
+📊 Add charts in Google Sheets (manual or with Sheets API)
+
+Let me know if you want help building any of those. Happy to jump in.
+
+LIST -- Reoccuring subcriptions -- Netflix, verizon ect.
+
+	AMEX
+		E-ZPASS MA 877-627-7745 MA
+		ICP*GOLDFISH SWIM SCNEEDHAM MA
+		HBO MAX
+		Disney +
+		AT&T
+		AMAZON
+		TARGET
+		NESPRESSO
+	CHASE SAPHIRE
+		SPOTIFY
+		NETFLIX
+		PARAMOUNT+	
+
+RECARD -Retor0 -- Get complete RE CC data
+
+
+
+AMEX ISSUE --
+
+MONTHY Statments have less data then YDT report.
+
+WE need to either laod excell
+
+2024-01-14	MOBILE PAYMENT - THANK YOU	-347.8	Uncategorized	Amex Cash Preferred	Adam	YEAR 2024.csv

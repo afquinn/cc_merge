@@ -1,0 +1,12 @@
+card:
+  name: "Chase Sapphire Preferred"
+  last-4: "1536"
+  owner: "Adam"
+  folder_path: "./data/chase"
+  column_map:
+    Transaction Date: "Date"
+    Post Date: "Post Date"
+    Description: "Description"
+    Amount: "Amount"
+    Category: "Category"  
+  reverse_sign: false
