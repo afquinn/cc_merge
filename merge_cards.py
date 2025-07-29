@@ -11,39 +11,23 @@ import numpy
 def load_yaml(path):
     with open(path, 'r') as f:
         return yaml.safe_load(f)
-############################################################
-# TIME
-timestamp = time.time() 
-# print(f"Original timestamp: {timestamp}")
 
-# Convert the timestamp to a datetime object
-dt_object = datetime.fromtimestamp(timestamp)
+# def normalize_text(text):
+#     if not isinstance(text, str):
+#         return ""
+#     text = unicodedata.normalize("NFKD", text)
+#     text = text.encode("ascii", "ignore").decode("ascii")  # remove accents
+#     return text.strip().lower()
+# def normalize_text(s):
+#     if not isinstance(s, str):
+#         return ""
+#     return s.strip().lower().replace("’", "'").replace("é", "e")
 
-# Format the datetime object into a string
-# %Y: Year with century (e.g., 2025)
-# %m: Month as a zero-padded decimal number (e.g., 07)
-# %d: Day of the month as a zero-padded decimal number (e.g., 10)
-# %H: Hour (24-hour clock) as a zero-padded decimal number (e.g., 16)
-# %M: Minute as a zero-padded decimal number (e.g., 39)
-# %S: Second as a zero-padded decimal number (e.g., 04)
-formatted_string = dt_object.strftime("%Y-%m-%d %H:%M:%S")
-############################################################
-
-def normalize_text(text):
-    if not isinstance(text, str):
-        return ""
-    text = unicodedata.normalize("NFKD", text)
-    text = text.encode("ascii", "ignore").decode("ascii")  # remove accents
-    return text.strip().lower()
 
 def load_category_map(path="category_map.yml"):
     with open(path, "r") as f:
         return yaml.safe_load(f) 
 
-def normalize_text(s):
-    if not isinstance(s, str):
-        return ""
-    return s.strip().lower().replace("’", "'").replace("é", "e")
 
 def apply_category_mapping(df, category_map):
     print("\n🧭 Starting category mapping...")
@@ -97,8 +81,9 @@ def apply_category_mapping(df, category_map):
             df.loc[mask, "Mapped Category"] = category
             desc_match_count += matched
 
-        print("📋 Sample leftover descriptions for new rules:")
-        print(df[df["Category"] == "Uncategorized"]["Description"])
+        # DEGBUG CATAGORIES    
+        # print("📋 Sample leftover descriptions for new rules:")
+        # print(df[df["Category"] == "Uncategorized"]["Description"])
         df[df["Category"] == "Uncategorized"].to_csv("debug_uncategorized_rows.csv", index=False)
     
 
@@ -127,8 +112,11 @@ def apply_category_mapping(df, category_map):
 
 def merge_csvs_for_card(card_config, tracked_year):
     card_info = card_config['card']
-    folder = card_info['folder_path'] + "/" + tracked_year
-    card_name = card_info['name'].replace(" ", "_") + "_v3"
+    if tracked_year == 0:
+        folder  = card_info['folder_path'] + "/test_data"
+    else:
+        folder = card_info['folder_path']
+    card_name = card_info['name'].replace(" ", "_")
     column_map = card_info.get('column_map', {})
     output_path = f"./merged_output/{card_name}.csv"
 
@@ -144,22 +132,6 @@ def merge_csvs_for_card(card_config, tracked_year):
     for file in all_files:
         df = pd.read_csv(file)
       
-        # print("\n🔎 Data types per column (based on first row):")
-        # first_row = df.iloc[0]
-        # for col in df.columns:
-        #     print(f"  - {col}: {type(first_row[col]).__name__}")
-        
-        # print("\n📊 Pandas-inferred dtypes:")
-        # print(df.dtypes)
-        # # 🧩 Ensure 'Category' column exists and is filled
-        # if "Category" not in df.columns:
-        #     print(f"⚠️ 'Category' column missing for {card_info['name']}, filling with 'N/A'")
-        #     df["Category"] = "N/A"
-        # else:
-        #     df["Category"] = df["Category"].fillna("N/A").replace("", "N/A")
-
-
-
         #Edit lines before entering them into Homoginized CSV
 
         if card_info.get("clean_description_using_city_state"):
@@ -175,12 +147,6 @@ def merge_csvs_for_card(card_config, tracked_year):
             else:
                 print(f"Missing Debit/Credit columns in {card_info['name']}")    
 
-        # if card_info.get("us_bank_real_estate"):
-        #     # 🧩 Ensure 'Category' column exists
-        #     if "Category" not in df.columns:
-        #         print(f"⚠️ 'Category' column missing for {card_info['name']}, filling with 'N/A'")
-        #         df["Category"] = "N/A"
-                # MAKE SURE ALL PAYMENTS/PUCHASES HAVE THE CORRECT +/-
         df = normalize_signs_by_card(df, card_info)
 
 
@@ -293,10 +259,10 @@ def combine_all_merged_csvs(config, output_dir="merged_output", combined_file=No
     day = config.get("tracked_day")
 
     if combined_file is None:
-	    timestamp = datetime.now().strftime("-%H-%M-%S")
-	    # DEGUGGING LINE
-	    # combined_file = f"final_output/all_cards_{timestamp}.csv"
-	    combined_file = f"final_output/all_cards.csv"
+        timestamp = datetime.now().strftime("-%H-%M-%S")
+        # DEGUGGING LINE
+        # combined_file = f"final_output/all_cards_{timestamp}.csv"
+        combined_file = f"final_output/all_cards.csv"
 
     all_csvs = glob(os.path.join(output_dir, "*.csv"))
     all_csvs = [f for f in all_csvs if not f.endswith("all_cards.csv")]

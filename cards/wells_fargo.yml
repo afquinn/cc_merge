@@ -1,0 +1,11 @@
+card:
+  name: "Wells Fargo Reflect"
+  last-4: "1283"
+  owner: "Adam"
+  folder_path: "./data/wells_fargo"
+  column_map:
+    Date: "Date"
+    Amount: "Amount"
+    Category: "Category"
+    Description: "Description"
+  reverse_sign: true

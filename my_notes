@@ -129,3 +129,8 @@ client_secret.json
 # gspread auth tokens
 .gspread_token.json
 >>>>>>> dadcaf6 (Initial commit)
+
+
+
+    git config --global user.name "afquinn"
+    git config --global user.email afquinn@gmail.com
