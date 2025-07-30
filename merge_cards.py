@@ -7,6 +7,28 @@ from datetime import datetime
 import time
 import unicodedata
 import numpy
+import openpyxl
+
+
+def ingest_all_files(folder_path):
+    """Find all CSV and XLSX files in a folder."""
+    csv_files = glob(os.path.join(folder_path, "*.csv"))
+    xlsx_files = glob(os.path.join(folder_path, "*.xlsx"))
+    return csv_files + xlsx_files
+
+def read_card_file(filepath, column_map):
+    """Read a single CSV or XLSX file into a DataFrame and rename columns."""
+    if filepath.endswith(".csv"):
+        df = pd.read_csv(filepath)
+    elif filepath.endswith(".xlsx"):
+        df = pd.read_excel(filepath)
+    else:
+        raise ValueError(f"Unsupported file format: {filepath}")
+    
+    if column_map:
+        df.rename(columns=column_map, inplace=True)
+    
+    return df
 
 def load_yaml(path):
     with open(path, 'r') as f:
@@ -28,9 +50,22 @@ def load_category_map(path="category_map.yml"):
     with open(path, "r") as f:
         return yaml.safe_load(f) 
 
+# def read_card_file(filepath):
+#     ext = os.path.splitext(filepath)[1].lower()
+#     if ext == ".csv":
+#         df = pd.read_csv(filepath)
+#     elif ext in [".xls", ".xlsx"]:
+#         df = pd.read_excel(filepath)
+#     else:
+#         raise ValueError(f"Unsupported file type: {filepath}")
+#     return df
 
 def apply_category_mapping(df, category_map):
     print("\n🧭 Starting category mapping...")
+    print("\n \n 🧪 TESTING 🧪 here are that columns i start with:")
+    print(df.columns.tolist())
+    print(df[0:10])
+
 
     # Check required columns
     if "Category" not in df.columns:
@@ -68,6 +103,9 @@ def apply_category_mapping(df, category_map):
     for rule in desc_rules:
         keyword = rule["match"].upper()
         category = rule["category"]
+        print("🧿 Catagory Rule Check 🧿 ")
+        print(category)
+        print(keyword)
 
         mask = (
             df["Mapped Category"].isin(["Uncategorized", "N/A"])
@@ -77,7 +115,7 @@ def apply_category_mapping(df, category_map):
 
         matched = mask.sum()
         if matched > 0:
-            print(f"🔎 Matched '{keyword}' → '{category}' in {matched} rows")
+            print(f"🔎 Word Matched 🔎 '{keyword}' → AUTOFILLS CATAGORY: '{category}' in {matched} rows")
             df.loc[mask, "Mapped Category"] = category
             desc_match_count += matched
 
@@ -88,6 +126,11 @@ def apply_category_mapping(df, category_map):
     
 
     print(f"✅ Total rows mapped using description: {desc_match_count}")
+
+
+    print("\n \n 🧪🧶 TESTING 🧪🧶 here are that columns i mid way with with:")
+    print(df.columns.tolist())
+    print(df[0:10])
 
 
 
@@ -103,13 +146,68 @@ def apply_category_mapping(df, category_map):
     df.drop(columns=["Mapped Category"], inplace=True)
 
     print("✅ Category mapping complete.\n")
+    print("\n \n 🧪🧽 🧶 TESTING 🧪🧽 🧶 here are that columns i END with with:")
+    print(df.columns.tolist())
+    print(df[0:10])
+
+
+
     return df
 
 
+# def ingest_all_files(folder_path):
+#     all_files = glob(os.path.join(folder_path, "*"))
+
+#     dataframes = []
+#     for file in all_files:
+#         try:
+#             df = read_card_file(file)
+#             df['Source File'] = os.path.basename(file)
+#             dataframes.append(df)
+#         except Exception as e:
+#             print(f"⚠️ Skipping {file}: {e}")
+
+#     return pd.concat(dataframes, ignore_index=True)
+
+# def merge_csvs_for_card(card_config, tracked_year):
+#     card_info = card_config['card']
+    
+#     if tracked_year == 0:
+#         folder = os.path.join(card_info['folder_path'], "test_data")
+#     else:
+#         folder = card_info['folder_path']
+    
+#     card_name = card_info['name'].replace(" ", "_")
+#     column_map = card_info.get('column_map', {})
+#     output_path = f"./merged_output/{card_name}.csv"
+
+#     print(f"Merging files for {card_info['name']}...")
+#     print(f"Folder Path: {folder}")
+
+#     all_files = ingest_all_files(folder)
+#     if not all_files:
+#         print(f"No files found in {folder}.")
+#         return
+
+#     dfs = []
+#     for filepath in all_files:
+#         try:
+#             df = read_card_file(filepath, column_map)
+#             dfs.append(df)
+#         except Exception as e:
+#             print(f"⚠️ Failed to read {filepath}: {e}")
+
+#     if not dfs:
+#         print("❌ No data frames were loaded successfully.")
+#         return
+
+#     merged_df = pd.concat(dfs, ignore_index=True)
+#     merged_df.to_csv(output_path, index=False)
+#     print(f"✅ Merged data written to {output_path}")
 
 
 
-
+# RETURN TO THIS
 def merge_csvs_for_card(card_config, tracked_year):
     card_info = card_config['card']
     if tracked_year == 0:
@@ -123,15 +221,28 @@ def merge_csvs_for_card(card_config, tracked_year):
     print(f"Merging files for {card_info['name']}...")
     print(f"Folder PAth : {folder}")
 
-    all_files = glob(os.path.join(folder, "*.csv"))
+    # all_files = glob(os.path.join(folder, "*.csv"))
+    all_files = []
+    for ext in ("*.csv", "*.xlsx"):
+        print(ext)
+        all_files.extend(glob(os.path.join(folder, ext)))
+
     if not all_files:
         print(f"No CSV files found in {folder}.")
         return
 
     dfs = []
     for file in all_files:
-        df = pd.read_csv(file)
-      
+
+        # df = pd.read_csv(file)
+        if file.endswith(".csv"):
+            df = pd.read_csv(file)
+        elif file.endswith(".xlsx"):
+            df = pd.read_excel(file, header=6, engine="openpyxl")  # More reliable than default engine
+        else:
+            print(f"⚠️ Skipping unsupported file: {file}")
+            continue
+
         #Edit lines before entering them into Homoginized CSV
 
         if card_info.get("clean_description_using_city_state"):
@@ -146,6 +257,8 @@ def merge_csvs_for_card(card_config, tracked_year):
                 df["Amount"] = df["Debit"] * -1 + df["Credit"]
             else:
                 print(f"Missing Debit/Credit columns in {card_info['name']}")    
+        print("Your column names are")
+        print(df.columns.tolist())
 
         df = normalize_signs_by_card(df, card_info)
 
@@ -206,6 +319,7 @@ def merge_csvs_for_card(card_config, tracked_year):
 
     os.makedirs("merged_output", exist_ok=True)
     output_file = os.path.join("merged_output", f"{card_name}.csv")
+
     save_csv(deduped_df, output_file)
 
 
@@ -333,7 +447,8 @@ def combine_all_merged_csvs(config, output_dir="merged_output", combined_file=No
     else:
         print("⚠️ No individual card CSVs found to combine.")
     print("⚠️TESTING⚠️ -- 1st 10 rows\n")
-    print(df[95:100])    
+    # print(len(df))
+    # print(df[95:100])    
 
 def save_csv(df, output_path):
     # If the file already exists, delete it

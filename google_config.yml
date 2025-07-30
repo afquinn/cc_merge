@@ -1,5 +1,5 @@
 google:
   credentials_path: "./secrets/google-credentials.json"
   spreadsheet_name: "Robot Credit Card Tracker"
-  worksheet_name: "July 2025"
+  worksheet_name: "July - 2025"
 
