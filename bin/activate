@@ -74,3 +74,9 @@ fi
 # Call hash to forget past commands. Without forgetting
 # past commands the $PATH changes we made may not be respected
 hash -r 2> /dev/null
+
+echo "adding ssh key"
+if [ -z "$SSH_AUTH_SOCK" ]; then
+  eval "$(ssh-agent -s)"
+  ssh-add ~/.ssh/github_ed25519 2>/dev/null || echo "⚠️ Couldn't auto-add SSH key"
+fi
