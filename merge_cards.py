@@ -8,6 +8,7 @@ import time
 import unicodedata
 import numpy
 import openpyxl
+import warnings
 
 
 def ingest_all_files(folder_path):
@@ -61,10 +62,10 @@ def load_category_map(path="category_map.yml"):
 #     return df
 
 def apply_category_mapping(df, category_map):
-    print("\n🧭 Starting category mapping...")
-    print("\n \n 🧪 TESTING 🧪 here are that columns i start with:")
-    print(df.columns.tolist())
-    print(df[0:10])
+    # print("\n🧭 Starting category mapping...")
+    # print("\n \n 🧪 TESTING 🧪 here are that columns i start with:")
+    # print(df.columns.tolist())
+    # print(df[0:10])
 
 
     # Check required columns
@@ -80,8 +81,8 @@ def apply_category_mapping(df, category_map):
     df["Category"] = df["Category"].fillna("N/A").astype(str).str.strip()
     df["Description"] = df["Description"].fillna("").astype(str)
 
-    print(f"🔍 Sample 'Category' values: {df['Category'].unique()[:5]}")
-    print(f"🔍 Sample 'Description' values: {df['Description'].head(3).tolist()}")
+    # print(f"🔍 Sample 'Category' values: {df['Category'].unique()[:5]}")
+    # print(f"🔍 Sample 'Description' values: {df['Description'].head(3).tolist()}")
 
     # Normalize the by_category map for lowercase matching
     by_category_map = {
@@ -92,9 +93,6 @@ def apply_category_mapping(df, category_map):
     mapped_by_category = df["Mapped Category"].notna().sum()
     print(f"✅ Mapped {mapped_by_category} rows using 'by_category'")
 
-    # Log a few unmapped rows for inspection
-    print("🧪 Sample rows with no category match:")
-    print(df[df["Mapped Category"].isna()][["Description", "Category"]].head(5))
 
     # Description-based mapping fallback
     desc_rules = category_map.get("by_description", [])
@@ -103,9 +101,9 @@ def apply_category_mapping(df, category_map):
     for rule in desc_rules:
         keyword = rule["match"].upper()
         category = rule["category"]
-        print("🧿 Catagory Rule Check 🧿 ")
-        print(category)
-        print(keyword)
+        # print("🧿 Catagory Rule Check 🧿 ")
+        # print(category)
+        # print(keyword)
 
         mask = (
             df["Mapped Category"].isin(["Uncategorized", "N/A"])
@@ -126,13 +124,23 @@ def apply_category_mapping(df, category_map):
     
 
     print(f"✅ Total rows mapped using description: {desc_match_count}")
+    
+    override_rules = category_map.get("override_description", [])
+    desc_match_count = 0
+    for rule in override_rules:
+        keyword = rule["match"].upper()
+        category = rule["category"]
+        
+        mask = (
+            df["Description"].str.upper().str.contains(keyword, na=False)
+        )
 
 
-    print("\n \n 🧪🧶 TESTING 🧪🧶 here are that columns i mid way with with:")
-    print(df.columns.tolist())
-    print(df[0:10])
-
-
+        matched = mask.sum()
+        if matched > 0:
+            print(f"🔎 OverRide Description found 🔎 '{keyword}' → AUTOFILLS CATAGORY: '{category}' in {matched} rows")
+            df.loc[mask, "Mapped Category"] = category
+            desc_match_count += matched
 
 
     # Fill anything left over
@@ -140,15 +148,23 @@ def apply_category_mapping(df, category_map):
     if unmapped > 0:
         print(f"⚠️ {unmapped} still unmapped — assigning 'Uncategorized'")
         df["Mapped Category"] = df["Mapped Category"].fillna("Uncategorized")
+        print ("⚠️TESTING⚠️")
+        # print(df)
+
+        odd_rows_out = df[df["Mapped Category"].str.contains("Uncategorized", case=False, na=False)]
+        print(odd_rows_out)
 
     # Final assignment
     df["Category"] = df["Mapped Category"]
     df.drop(columns=["Mapped Category"], inplace=True)
 
-    print("✅ Category mapping complete.\n")
-    print("\n \n 🧪🧽 🧶 TESTING 🧪🧽 🧶 here are that columns i END with with:")
-    print(df.columns.tolist())
-    print(df[0:10])
+    print(f"💥Applying Catagorie Override for Edge-Cases")
+
+
+    # print("✅ Category mapping complete.\n")
+    # print("\n \n 🧪🧽 🧶 TESTING 🧪🧽 🧶 here are that columns i END with with:")
+    # print(df.columns.tolist())
+    # print(df[0:10])
 
 
 
@@ -209,6 +225,7 @@ def apply_category_mapping(df, category_map):
 
 # RETURN TO THIS
 def merge_csvs_for_card(card_config, tracked_year):
+    warnings.filterwarnings("ignore", message="Workbook contains no default style", category=UserWarning)
     card_info = card_config['card']
     if tracked_year == 0:
         folder  = card_info['folder_path'] + "/test_data"
@@ -218,13 +235,12 @@ def merge_csvs_for_card(card_config, tracked_year):
     column_map = card_info.get('column_map', {})
     output_path = f"./merged_output/{card_name}.csv"
 
-    print(f"Merging files for {card_info['name']}...")
-    print(f"Folder PAth : {folder}")
+    print(f"🔂 Merging files for {card_info['name']}...")
+    print(f"📂 Folder Path : {folder}")
 
     # all_files = glob(os.path.join(folder, "*.csv"))
     all_files = []
-    for ext in ("*.csv", "*.xlsx"):
-        print(ext)
+    for ext in ("*.csv", "*.xlsx", "*.CSV"):
         all_files.extend(glob(os.path.join(folder, ext)))
 
     if not all_files:
@@ -233,9 +249,12 @@ def merge_csvs_for_card(card_config, tracked_year):
 
     dfs = []
     for file in all_files:
+        print(f"\tOpening: {file}")
 
         # df = pd.read_csv(file)
         if file.endswith(".csv"):
+            df = pd.read_csv(file)
+        elif file.endswith(".CSV"):
             df = pd.read_csv(file)
         elif file.endswith(".xlsx"):
             df = pd.read_excel(file, header=6, engine="openpyxl")  # More reliable than default engine
@@ -257,10 +276,13 @@ def merge_csvs_for_card(card_config, tracked_year):
                 df["Amount"] = df["Debit"] * -1 + df["Credit"]
             else:
                 print(f"Missing Debit/Credit columns in {card_info['name']}")    
-        print("Your column names are")
-        print(df.columns.tolist())
+        # print("Your column names are")
+        # print(df.columns.tolist())
 
         df = normalize_signs_by_card(df, card_info)
+        df = costco_only(df, card_info)
+
+
 
 
         # print("RENAME COLUMNS CHECK")
@@ -281,7 +303,7 @@ def merge_csvs_for_card(card_config, tracked_year):
 
         # 🧼 Normalize Date column
         if card_info.get("reformat_date"):
-            print("There is an issue with the Date Column -- Reformating")
+            print("\t🔧 There is an issue with the Date Column -- Reformating")
             if "Date" in df.columns:
                 df["Date"] = df["Date"].astype(str).str.strip()
                 df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
@@ -346,8 +368,26 @@ def clean_description(row):
 
     return desc_clean
 
+def costco_only(df, card_info):
+    is_this_the_costco_visa = card_info.get("costco_visa", False)
+    # print(df)
+
+    if is_this_the_costco_visa:
+        # print("🛡️🛡️🛡️🛡️🛡️🛡️🛡️🛡️🛡️🛡️")
+        # print("this is the costco VISA")
+
+        costco_rows = df[df["Description"].str.contains("COSTCO", case=False, na=False)]
+        # print (costco_rows)
+        return costco_rows
+    else:
+        return df
+
+        
+
+
 def normalize_signs_by_card(df, card_info):
     reverse = card_info.get("reverse_sign", False)
+
 
     if reverse:
         # Ensure purchases are positive, refunds/payments negative
@@ -396,7 +436,7 @@ def combine_all_merged_csvs(config, output_dir="merged_output", combined_file=No
         master_df = pd.concat(combined_dfs, ignore_index=True)
         print(f"\n🧩 Total combined rows before dropna: {len(master_df)}")
 
-        print(f"HOMOGENIZING COLUMNS")
+        print(f"\n 📦HOMOGENIZING COLUMNS📦\n")
         category_map = load_category_map()
         master_df = apply_category_mapping(master_df, category_map)
 
@@ -446,7 +486,7 @@ def combine_all_merged_csvs(config, output_dir="merged_output", combined_file=No
 
     else:
         print("⚠️ No individual card CSVs found to combine.")
-    print("⚠️TESTING⚠️ -- 1st 10 rows\n")
+    # print("⚠️TESTING⚠️ -- 1st 10 rows\n")
     # print(len(df))
     # print(df[95:100])    
 
@@ -457,7 +497,7 @@ def save_csv(df, output_path):
         print(f"🗑️ Removed old file: {output_path}")
     
     df.to_csv(output_path, index=False)
-    print(f"✅ Saved merged file to {output_path}")
+    print(f"✅ Saved merged file to {output_path}\n")
 
 def main():
     config = load_yaml("config.yml")
