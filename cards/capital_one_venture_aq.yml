@@ -1,0 +1,15 @@
+card:
+  name: "Capital One Venture- AQ"
+  last-4: "1755"
+  owner: "Adam"
+  folder_path: "./data/capital_one_1755"
+  column_map:
+    Transaction Date: "Date"
+    Posted Date: "Post Date"
+    Description: "Description"
+    Category: "Category"
+    Debit: "Debit"
+    Credit: "Credit"
+  merge_credit_debit: true
+  reformat_date: true
+  reverse_sign: false

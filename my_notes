@@ -134,3 +134,24 @@ client_secret.json
 
     git config --global user.name "afquinn"
     git config --global user.email afquinn@gmail.com
+
+
+
+======
+9/2
+
+Formating details
+All the transactions but NOT payments (INCLUDES reward dollars)
+=SUMIF(D2:D200, "<>payment", C2:C200)
+All the transactions but NOT payments, refunds or rewards
+=SUMIF(C2:C200, ">0")    
+
+TOP 5 most expensive transactions
+=QUERY(SORT(FILTER({C18:C79, B18:B79}, ISNUMBER(C18:C79)), 1, FALSE), "SELECT Col1, Col2 LIMIT 5")
+
+SPEND BY CATAGORY
+--PIE CHART
+----Up OR Down from Last Month
+----UP or Down from last 12 month Avg
+
+

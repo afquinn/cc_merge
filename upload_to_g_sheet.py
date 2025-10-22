@@ -70,18 +70,14 @@ def get_or_create_worksheet(spreadsheet, worksheet_name, rows=5000, cols=10):
 
 def upload_new_rows_to_sheet(csv_path, config_path="google_config.yml"):
     config = load_google_config(config_path)
-
-    worksheet = spreadsheet.worksheet(config["google"]["worksheet_name"])
-
     print(config["spreadsheet_name"])
     print(config["worksheet_name"])
     print(config)
+
+    # worksheet = spreadsheet.worksheet(config["google"]["worksheet_name"])
+
     # worksheet = get_worksheet(config)
     worksheet = get_or_create_worksheet(config["spreadsheet_name"],config["worksheet_name"])
-
-
-
-
 
     print("📥 Reading master CSV...")
     df_new = pd.read_csv(csv_path)
@@ -104,5 +100,6 @@ def upload_new_rows_to_sheet(csv_path, config_path="google_config.yml"):
     print("📤 Upload complete.")
 
 # Example usage
+
 upload_new_rows_to_sheet("final_output/all_cards.csv")
 stylize_sheet(get_worksheet(load_google_config()))
