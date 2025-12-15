@@ -502,6 +502,7 @@ def save_csv(df, output_path):
 def main():
     config = load_yaml("config.yml")
     for card_yaml in config["cards"]:
+        print(config["cards"])
 
         tracked_year = str(config["tracked_year"])
         card_config = load_yaml(card_yaml)

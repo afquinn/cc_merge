@@ -51,7 +51,7 @@ Create a virtual environment:
 
 ```
 python3 -m venv cc_merge
-source cc_merge/bin/activate
+source bin/activate
 ```
 Install dependencies:
 
