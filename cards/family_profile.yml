@@ -1,0 +1,6 @@
+# # Family Card Config
+cards:
+  - "./cards/amex_card.yml"
+  - "./cards/costco_chase.yml"
+  - "./cards/capital_one_venture_kq.yml"
+  - "./cards/capital_one_venture_aq.yml"

@@ -1,0 +1,5 @@
+# Real Estate Card Config
+cards:
+  - "./cards/capital_one_quicksilver.yml"
+  - "./cards/us_bank.yml"
+  - "./cards/wells_fargo.yml"

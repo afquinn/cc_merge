@@ -35,38 +35,36 @@ def load_yaml(path):
     with open(path, 'r') as f:
         return yaml.safe_load(f)
 
-# def normalize_text(text):
-#     if not isinstance(text, str):
-#         return ""
-#     text = unicodedata.normalize("NFKD", text)
-#     text = text.encode("ascii", "ignore").decode("ascii")  # remove accents
-#     return text.strip().lower()
-# def normalize_text(s):
-#     if not isinstance(s, str):
-#         return ""
-#     return s.strip().lower().replace("’", "'").replace("é", "e")
+
+def reset_merged_output_folder(folder_path):
+    """
+    Deletes all files in the specified folder.
+
+    """
+    # Check if the folder exists
+    if not os.path.exists(folder_path):
+        print(f"The folder {folder_path} does not exist.")
+        return
+
+    # Iterate through all items in the folder
+    for filename in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, filename)
+        # Check if the item is a file
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+            print(f"Deleted: {file_path}")
 
 
 def load_category_map(path="category_map.yml"):
     with open(path, "r") as f:
         return yaml.safe_load(f) 
 
-# def read_card_file(filepath):
-#     ext = os.path.splitext(filepath)[1].lower()
-#     if ext == ".csv":
-#         df = pd.read_csv(filepath)
-#     elif ext in [".xls", ".xlsx"]:
-#         df = pd.read_excel(filepath)
-#     else:
-#         raise ValueError(f"Unsupported file type: {filepath}")
-#     return df
 
 def apply_category_mapping(df, category_map):
     # print("\n🧭 Starting category mapping...")
     # print("\n \n 🧪 TESTING 🧪 here are that columns i start with:")
     # print(df.columns.tolist())
     # print(df[0:10])
-
 
     # Check required columns
     if "Category" not in df.columns:
@@ -169,59 +167,6 @@ def apply_category_mapping(df, category_map):
 
 
     return df
-
-
-# def ingest_all_files(folder_path):
-#     all_files = glob(os.path.join(folder_path, "*"))
-
-#     dataframes = []
-#     for file in all_files:
-#         try:
-#             df = read_card_file(file)
-#             df['Source File'] = os.path.basename(file)
-#             dataframes.append(df)
-#         except Exception as e:
-#             print(f"⚠️ Skipping {file}: {e}")
-
-#     return pd.concat(dataframes, ignore_index=True)
-
-# def merge_csvs_for_card(card_config, tracked_year):
-#     card_info = card_config['card']
-    
-#     if tracked_year == 0:
-#         folder = os.path.join(card_info['folder_path'], "test_data")
-#     else:
-#         folder = card_info['folder_path']
-    
-#     card_name = card_info['name'].replace(" ", "_")
-#     column_map = card_info.get('column_map', {})
-#     output_path = f"./merged_output/{card_name}.csv"
-
-#     print(f"Merging files for {card_info['name']}...")
-#     print(f"Folder Path: {folder}")
-
-#     all_files = ingest_all_files(folder)
-#     if not all_files:
-#         print(f"No files found in {folder}.")
-#         return
-
-#     dfs = []
-#     for filepath in all_files:
-#         try:
-#             df = read_card_file(filepath, column_map)
-#             dfs.append(df)
-#         except Exception as e:
-#             print(f"⚠️ Failed to read {filepath}: {e}")
-
-#     if not dfs:
-#         print("❌ No data frames were loaded successfully.")
-#         return
-
-#     merged_df = pd.concat(dfs, ignore_index=True)
-#     merged_df.to_csv(output_path, index=False)
-#     print(f"✅ Merged data written to {output_path}")
-
-
 
 # RETURN TO THIS
 def merge_csvs_for_card(card_config, tracked_year):
@@ -491,6 +436,8 @@ def combine_all_merged_csvs(config, output_dir="merged_output", combined_file=No
     # print(df[95:100])    
 
 def save_csv(df, output_path):
+    print("⚠️Dupe Check ⚠️")
+    print(output_path)
     # If the file already exists, delete it
     if os.path.exists(output_path):
         os.remove(output_path)
@@ -501,9 +448,10 @@ def save_csv(df, output_path):
 
 def main():
     config = load_yaml("config.yml")
-    for card_yaml in config["cards"]:
-        print(config["cards"])
-
+    cards = load_yaml(config["card_profile"])
+    reset_merged_output_folder("./merged_output/")
+    for card_yaml in cards["cards"]:
+        print(card_yaml)
         tracked_year = str(config["tracked_year"])
         card_config = load_yaml(card_yaml)
         # print(f"Loading {str(card_config["card"]["name"])}")
